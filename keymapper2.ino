@@ -1,13 +1,31 @@
 /*
-Usage: Convert standard QWERTY keyboard to any keyboard layout you want
-*/
+ * Convert a standard QWERTY keyboard to any keyboard layout you want!
+ *
+ * You will need:
+ * - An Arduino Leonardo
+ * - A USB Host Shield v2.0, available from Circuits@Home
+ * - A MicroUSB cable to connect the Leonardo to your computer
+ * - A USB keyboard
+ *
+ * Usage:
+ * - Upload this sketch to your Arduino Leonardo
+ * - Plug the Leonardo into the computer you want to use your keyboard layout with.
+ * - Plug your keyboard into the USB host shield.
+ *
+ * Dependencies: https://github.com/felis/USB_Host_Shield_2.0
+ */
 
 #include <avr/pgmspace.h>
 #include <Usb.h>
 #include <hidboot.h>
 
 /* CONFIG */
-//#define TEENSY    //uncomment this line if you are using Teensy
+//#define TEENSY    // Uncomment this line if you are using Teensy.
+//#define DEBUG     // Uncomment this line to see output to the serial monitor.
+                    // NOTE: in debug mode, the keyboard will not work until the serial monitor is started.
+#define SERIAL_IO_RATE 115200
+
+/* KEYCODES */
 
 #define keyA        4
 #define keyB        5
@@ -119,14 +137,14 @@ uint8_t mapModifierKeys(uint8_t *buf) {
 }
 
 void KbdRptParser::Parse(HID *hid, bool is_rpt_id, uint8_t len, uint8_t *buf) {
-  // On error - return
-  if (buf[2] == 1) return;
-
   for (uint8_t i = 0; i < 8; i++) {
     PrintHex<uint8_t>(buf[i], 0x80);
     Serial.print(" ");
   }
   Serial.println("");
+
+  // On error - return
+  if (buf[2] == 1) return;
 
   KeyBuffer[0] = mapModifierKeys(buf);
 
@@ -142,7 +160,7 @@ void KbdRptParser::Parse(HID *hid, bool is_rpt_id, uint8_t len, uint8_t *buf) {
     HandleLockingKeys(hid, KeyBuffer[i]);
   }
 
-  SendKeysToHost (KeyBuffer);
+  SendKeysToHost(KeyBuffer);
 };
 
 inline void SendKeysToHost (uint8_t *buf) {
@@ -165,13 +183,18 @@ HIDBoot<HID_PROTOCOL_KEYBOARD>    ExtKeyboard(&Usb);
 KbdRptParser Prs;
 
 void setup() {
-  Keyboard.begin();
+#ifdef DEBUG
+  Serial.begin(SERIAL_IO_RATE);
+  while (!Serial);
+  Serial.println("Starting...");
+#endif
 
   if (Usb.Init() == -1) Serial.println("OSC did not start.");
 
   delay(200);
 
   ExtKeyboard.SetReportParser(0, (HIDReportParser*)&Prs);
+  Serial.println("Setup finished");
 }
 
 void loop() {
