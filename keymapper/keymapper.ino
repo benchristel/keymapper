@@ -18,6 +18,7 @@
 #include <avr/pgmspace.h>
 #include <Usb.h>
 #include <hidboot.h>
+#include <usbhub.h>
 
 /* CONFIG */
 //#define TEENSY    // Uncomment this line if you are using Teensy.
@@ -196,6 +197,7 @@ inline void SendKeysToHost (uint8_t *buf) {
 }
 
 USB     Usb;
+USBHub  hub(&Usb);
 HIDBoot<HID_PROTOCOL_KEYBOARD>    ExtKeyboard(&Usb);
 KbdRptParser Prs;
 
@@ -205,14 +207,15 @@ void setup() {
   while (!Serial);
 #endif
   Serial.println("Starting...");
-  
+    
   delay(5000);
 
   if (Usb.Init() < 0) Serial.println("OSC did not start.");
 
   delay(5000);
-
+  
   if (!ExtKeyboard.SetReportParser(0, (HIDReportParser*)&Prs)) Serial.println("SetReportParser failed");
+ 
   Serial.println("Setup finished");
 }
 
