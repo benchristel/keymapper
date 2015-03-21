@@ -123,9 +123,9 @@ uint8_t KeyBuffer[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 class KbdRptParser : public KeyboardReportParser {
   protected:
     virtual void Parse(HID *hid, bool is_rpt_id, uint8_t len, uint8_t *buf);
-    virtual void OnControlKeysChanged(uint8_t before, uint8_t after);
-    virtual void OnKeyDown(uint8_t mod, uint8_t key);
-    virtual void OnKeyUp(uint8_t mod, uint8_t key);
+//    virtual void OnControlKeysChanged(uint8_t before, uint8_t after);
+//    virtual void OnKeyDown(uint8_t mod, uint8_t key);
+//    virtual void OnKeyUp(uint8_t mod, uint8_t key);
 };
 
 bool isMappableKey(uint8_t key) {
@@ -169,17 +169,17 @@ void KbdRptParser::Parse(HID *hid, bool is_rpt_id, uint8_t len, uint8_t *buf) {
   SendKeysToHost(KeyBuffer);
 };
 
-void KbdRptParser::OnControlKeysChanged(uint8_t before, uint8_t after) {
-  Serial.println("modifier keys changed");
-}
-
-void KbdRptParser::OnKeyDown(uint8_t mod, uint8_t key) {
-  Serial.println("pressed");
-}
-
-void KbdRptParser::OnKeyUp(uint8_t mod, uint8_t key) {
-  Serial.println("released");  
-}
+//void KbdRptParser::OnControlKeysChanged(uint8_t before, uint8_t after) {
+//  Serial.println("modifier keys changed");
+//}
+//
+//void KbdRptParser::OnKeyDown(uint8_t mod, uint8_t key) {
+//  Serial.println("pressed");
+//}
+//
+//void KbdRptParser::OnKeyUp(uint8_t mod, uint8_t key) {
+//  Serial.println("released");  
+//}
 
 inline void SendKeysToHost (uint8_t *buf) {
   HID_SendReport(2, buf, 8);
