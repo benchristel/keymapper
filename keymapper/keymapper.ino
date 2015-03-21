@@ -8,6 +8,7 @@
  * - A USB keyboard
  *
  * Usage:
+ * - Edit the keymap array to your desired keyboard layout.
  * - Upload this sketch to your Arduino Leonardo
  * - Plug the Leonardo into the computer you want to use your keyboard layout with.
  * - Plug your keyboard into the USB host shield.
@@ -21,7 +22,6 @@
 #include <usbhub.h>
 
 /* CONFIG */
-//#define TEENSY    // Uncomment this line if you are using Teensy.
 //#define DEBUG     // Uncomment this line to see output to the serial monitor.
                     // NOTE: in debug mode, the keyboard will not work until the serial monitor is started.
 #define SERIAL_IO_RATE 115200
@@ -182,18 +182,7 @@ void KbdRptParser::OnKeyUp(uint8_t mod, uint8_t key) {
 }
 
 inline void SendKeysToHost (uint8_t *buf) {
-#ifdef TEENSY
-  Keyboard.set_modifier(buf[0]);
-  Keyboard.set_key1(buf[2]);
-  Keyboard.set_key2(buf[3]);
-  Keyboard.set_key3(buf[4]);
-  Keyboard.set_key4(buf[5]);
-  Keyboard.set_key5(buf[6]);
-  Keyboard.set_key6(buf[7]);
-  Keyboard.send_now();
-#else
   HID_SendReport(2, buf, 8);
-#endif
 }
 
 USB     Usb;
