@@ -122,10 +122,18 @@ uint8_t KeyBuffer[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 class KbdRptParser : public KeyboardReportParser {
   protected:
     virtual void Parse(HID *hid, bool is_rpt_id, uint8_t len, uint8_t *buf);
+    virtual void OnControlKeysChanged(uint8_t before, uint8_t after);
+    virtual void OnKeyDown(uint8_t mod, uint8_t key);
+    virtual void OnKeyUp(uint8_t mod, uint8_t key);
 };
 
 bool isMappableKey(uint8_t key) {
   return key >= keyA && key <= keyCapsLock;
+}
+
+inline bool isError(uint8_t *buf) {
+  if (buf[2] == 1) return true;
+  return false;
 }
 
 uint8_t mappedKey(uint8_t key) {
@@ -143,13 +151,10 @@ void KbdRptParser::Parse(HID *hid, bool is_rpt_id, uint8_t len, uint8_t *buf) {
   }
   Serial.println("");
 
-  // On error - return
-  if (buf[2] == 1) return;
+  if (isError(buf)) return;
 
   KeyBuffer[0] = mapModifierKeys(buf);
 
-  // todo: this assumes 6-key rollover with a buffer length of 8.
-  // consider handling the case where len != 6
   for (uint8_t i = 2; i < 8; i++) {
     if (isMappableKey(buf[i])) {
       KeyBuffer[i] = mappedKey(buf[i]);
@@ -162,6 +167,15 @@ void KbdRptParser::Parse(HID *hid, bool is_rpt_id, uint8_t len, uint8_t *buf) {
 
   SendKeysToHost(KeyBuffer);
 };
+
+void KbdRptParser::OnControlKeysChanged(uint8_t before, uint8_t after) {
+}
+
+void KbdRptParser::OnKeyDown(uint8_t mod, uint8_t key) {
+}
+
+void KbdRptParser::OnKeyUp(uint8_t mod, uint8_t key) {
+}
 
 inline void SendKeysToHost (uint8_t *buf) {
 #ifdef TEENSY
